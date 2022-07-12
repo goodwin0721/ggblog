@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goodwin.ggblog.dao.ArticleMapper">
+
+    <resultMap id="articleMap" type="com.goodwin.ggblog.entity.Article">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="creationTime" column="creation_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="love" column="love"/>
+        <result property="comment" column="comment"/>
+        <result property="star" column="star"/>
+        <result property="view" column="view"/>
+        <result property="title" column="title"/>
+        <result property="text" column="text"/>
+        <result property="type" column="type"/>
+        <result property="pictureUrlGroup" column="picture_url_group"/>
+    </resultMap>
+    <insert id="add">
+        INSERT INTO article(
+            user_id,
+            title,
+            text,
+            picture_url_group,
+            type,
+            creation_time,
+            update_time,
+            love,
+            `comment`,
+            star,
+            `view`
+        )
+        VALUES
+        (
+            #{userId},
+            #{title},
+            #{text},
+            #{pictureUrlGroup},
+            #{type},
+            NOW( ),
+            NOW( ),
+            0,
+            0,
+            0,
+            0
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE article
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="text != null">
+                `text` = #{text},
+            </if>
+            <if test="type != null">
+                `type` = #{type},
+            </if>
+            <if test="pictureUrlGroup != null">
+                picture_url_group = pictureUrlGroup,
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="viewIncrease">
+        UPDATE article set view = view + 1 WHERE id = #{id}
+    </update>
+
+    <update id="commentIncrease">
+        UPDATE article set `comment` = `comment` + 1 WHERE id = #{id}
+    </update>
+
+    <update id="loveIncrease">
+        UPDATE article set `love` = `love` + 1 WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM article WHERE id = #{id}
+    </delete>
+
+    <select id="getArticle" resultMap="articleMap">
+        SELECT * FROM article WHERE id = #{id}
+    </select>
+
+    <select id="getBriefArticleListByUserId" resultMap="articleMap">
+        SELECT
+            id,
+            user_id,
+            SUBSTRING( title, 1, 30 ) AS title,
+            SUBSTRING( text, 1, 100 ) AS text,
+            picture_url_group,
+            type,
+            creation_time,
+            update_time,
+            love,
+            `comment`,
+            star,
+            `view`
+        FROM
+            `article`
+        WHERE
+            user_id IN
+            <foreach collection="userIdList" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        ORDER BY id DESC
+        LIMIT #{start},#{length}
+    </select>
+
+    <select id="getBriefArticleListByType" resultMap="articleMap">
+        SELECT
+            id,
+            user_id,
+            SUBSTRING( title, 1, 30 ) AS title,
+            SUBSTRING( text, 1, 100 ) AS text,
+            picture_url_group,
+            type,
+            creation_time,
+            update_time,
+            love,
+            `comment`,
+            star,
+            `view`
+        FROM
+             `article`
+        <where>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{start},#{length}
+    </select>
+
+    <select id="countByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(*) count
+        FROM article
+        WHERE
+            user_id IN
+            <foreach collection="list" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+    </select>
+
+    <select id="countByType" resultType="java.lang.Integer">
+        SELECT COUNT(*) count
+        FROM article
+        <where>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <select id="titleFuzzySearchByKeyword" resultType="java.lang.String">
+        SELECT
+            title
+        FROM
+            `article`
+        <where>
+            <foreach collection="list" item="keyword" separator=" or ">
+                title LIKE CONCAT( '%', #{keyword}, '%' )
+            </foreach>
+        </where>
+        limit 10
+    </select>
+
+    <select id="countByTitle" resultType="java.lang.Integer">
+        SELECT COUNT(*) count
+        FROM article
+        <where>
+            <foreach collection="list" item="keyword" separator=" or ">
+                title LIKE CONCAT( '%', #{keyword}, '%' )
+            </foreach>
+        </where>
+    </select>
+
+    <select id="fuzzySearchByKeyword" resultMap="articleMap">
+        SELECT
+        id,
+        user_id,
+        SUBSTRING( title, 1, 30 ) AS title,
+        SUBSTRING( text, 1, 100 ) AS text,
+        picture_url_group,
+        type,
+        creation_time,
+        update_time,
+        love,
+        `comment`,
+        star,
+        `view`
+        FROM
+        `article`
+        <where>
+            <foreach collection="keywords" item="keyword" separator=" or ">
+                title LIKE CONCAT( '%', #{keyword}, '%' )
+            </foreach>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{start},#{length}
+    </select>
+
+    <select id="getArticleIdList" resultType="java.lang.Integer">
+        SELECT
+            id
+        FROM
+            `article`
+        WHERE
+            user_id = #{userId}
+    </select>
+
+</mapper>

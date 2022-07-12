@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goodwin.ggblog.dao.MessageMapper">
+    <insert id="add">
+        INSERT INTO msg_record(user_id, last_read_comment_id, last_read_reply_id)
+        VALUES (#{userId},0,0)
+    </insert>
+
+    <update id="setLastReadCommentId">
+        UPDATE msg_record SET last_read_comment_id = #{id}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="setLastReadReplyId">
+        UPDATE msg_record SET last_read_reply_id = #{id}
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getLastReadReplyId" resultType="java.lang.Integer">
+        SELECT
+            `last_read_reply_id`
+        FROM
+            `msg_record`
+        WHERE
+            user_id = #{id}
+    </select>
+
+    <select id="getLastReadCommentId" resultType="java.lang.Integer">
+        SELECT
+            `last_read_comment_id`
+        FROM
+            `msg_record`
+        WHERE
+            user_id = #{id}
+    </select>
+</mapper>

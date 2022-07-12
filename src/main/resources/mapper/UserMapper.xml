@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goodwin.ggblog.dao.UserMapper">
+    <insert id="addUser">
+        INSERT INTO `user`(username,password,creation_date) values(#{username},MD5(#{password}),CURRENT_DATE)
+    </insert>
+
+    <update id="update">
+        UPDATE `user`
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = MD5(#{password}),
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="birthdate != null">
+                birthdate = #{birthdate},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="signature != null">
+                signature = #{signature},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="fansIncrease" parameterType="int">
+        update `user` set fans = fans + 1 where id = #{id}
+    </update>
+
+    <update id="fansDecrease" parameterType="int">
+        update `user` set fans = fans - 1 where id = #{id}
+    </update>
+
+    <update id="followIncrease" parameterType="int">
+        update `user` set follow = follow + 1 where id = #{id}
+    </update>
+
+    <update id="followDecrease" parameterType="int">
+        update `user` set follow = follow - 1 where id = #{id}
+    </update>
+
+    <update id="dynamicIncrease" parameterType="int">
+        update `user` set `dynamic` = `dynamic` + 1 where id = #{id}
+    </update>
+
+    <update id="dynamicDecrease" parameterType="int">
+        update `user` set `dynamic` = `dynamic` - 1 where id = #{id}
+    </update>
+
+    <select id="getUser" parameterType="user" resultType="user">
+        SELECT * FROM `user` WHERE username = #{username} AND password = MD5(#{password})
+    </select>
+
+    <select id="getUserExceptPsw" resultType="com.goodwin.ggblog.entity.User">
+        SELECT id,username,telephone,creation_date,birthdate,gender,signature,fans,follow,dynamic,avatar
+        FROM `user` WHERE id = #{id}
+    </select>
+
+    <select id="getUserList" resultType="com.goodwin.ggblog.entity.UserVo">
+        SELECT id,username,avatar FROM `user`
+        <where>
+            id IN
+            <foreach collection="list" item="id" open="(" close=")" separator=",">
+               #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getUserList4Fans" resultType="com.goodwin.ggblog.entity.FansVo">
+        SELECT id,username,avatar,signature FROM `user`
+        <where>
+            id IN
+            <foreach collection="list" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getUserByUsername" resultType="com.goodwin.ggblog.entity.User">
+        SELECT * FROM user
+        where username = #{username}
+    </select>
+
+    <select id="getUsername" resultType="java.lang.String">
+        SELECT username FROM user
+        where id = #{id}
+    </select>
+
+
+</mapper>

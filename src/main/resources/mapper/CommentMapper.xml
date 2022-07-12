@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goodwin.ggblog.dao.CommentMapper">
+
+    <resultMap id="commentMap" type="com.goodwin.ggblog.entity.Comment">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="articleId" column="article_id"/>
+        <result property="comment" column="comment"/>
+        <result property="love" column="love"/>
+        <result property="reply" column="reply"/>
+        <result property="creationTime" column="creation_time"/>
+    </resultMap>
+
+    <insert id="add">
+        INSERT INTO `comment`(
+             `comment`, love, reply, creation_time, user_id, username, article_id
+        )
+        VALUES
+        (
+            #{comment},
+            0,
+            0,
+            NOW( ),
+            #{userId},
+            #{username},
+            #{articleId}
+        )
+    </insert>
+
+    <update id="loveIncrease">
+        UPDATE `comment`
+        SET love = love + 1
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="replyIncrease">
+        UPDATE `comment`
+        SET reply = reply + 1
+        WHERE
+            id = #{id}
+    </update>
+
+    <select id="get" resultMap="commentMap">
+        SELECT
+            *
+        FROM
+            `comment`
+        WHERE
+            article_id = #{id}
+            AND id > #{lastCommentId}
+        LIMIT #{length};
+    </select>
+
+    <select id="getNewCommentCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT( id )
+        FROM
+            `comment`
+        WHERE
+            id > #{lastReadCommentId}
+            AND
+            article_id
+            IN
+            <foreach collection="list" item="articleId" separator="," open="(" close=")">
+                #{articleId}
+            </foreach>
+    </select>
+
+    <select id="getNewComment" resultMap="commentMap">
+        SELECT
+        *
+        FROM
+        `comment`
+        WHERE
+        id > #{lastReadCommentId}
+        AND
+        article_id
+        IN
+        <foreach collection="list" item="articleId" separator="," open="(" close=")">
+            #{articleId}
+        </foreach>
+        ORDER BY id DESC
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goodwin.ggblog.dao.FansMapper">
+
+    <insert id="add" parameterType="follow">
+        INSERT INTO follow(user_id,follow_id) VALUES(#{userId},#{followId})
+    </insert>
+
+    <delete id="remove" parameterType="follow" >
+        DELETE FROM follow WHERE user_id = #{userId} AND follow_id = #{followId}
+    </delete>
+
+    <select id="getFansIdList" resultType="java.lang.Integer">
+        SELECT user_id FROM `follow` WHERE follow_id = #{id}
+    </select>
+
+    <select id="getFollowIdList" resultType="java.lang.Integer">
+        SELECT follow_id FROM `follow` WHERE user_id = #{id}
+    </select>
+
+    <select id="exist" resultType="java.lang.Integer">
+        SELECT count(*) FROM follow WHERE user_id = #{userId} AND follow_id = #{followId};
+    </select>
+</mapper>

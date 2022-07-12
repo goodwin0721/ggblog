@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goodwin.ggblog.dao.ReplyMapper">
+
+    <resultMap id="replyMap" type="com.goodwin.ggblog.entity.Reply">
+        <id property="id" column="id"/>
+        <result property="comment" column="comment"/>
+        <result property="love" column="love"/>
+        <result property="creationTime" column="creation_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="replyId" column="reply_id"/>
+        <result property="replyName" column="reply_name"/>
+        <result property="articleId" column="article_id"/>
+        <result property="commentId" column="comment_id"/>
+    </resultMap>
+
+    <insert id="add">
+        INSERT INTO `reply`(
+            comment, love, creation_time, user_id, username, reply_id, reply_name, article_id, comment_id
+        )
+        VALUES
+        (
+            #{comment},
+            0,
+            NOW( ),
+            #{userId},
+            #{username},
+            #{replyId},
+            #{replyName},
+            #{articleId},
+            #{commentId}
+        )
+    </insert>
+
+    <update id="loveIncrease">
+        UPDATE `reply`
+        SET love = love + 1
+        WHERE
+            id = #{id}
+    </update>
+
+    <select id="get" resultMap="replyMap">
+        SELECT
+            *
+        FROM
+            `reply`
+        WHERE
+            comment_id = #{commentId}
+        LIMIT #{offset},#{length};
+    </select>
+
+    <select id="getNewReplyCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT( id )
+        FROM
+            `reply`
+        WHERE
+            id > #{lastReadReplyId}
+          AND reply_id = #{userId}
+    </select>
+    <select id="getNewReply" resultMap="replyMap">
+        SELECT
+            *
+        FROM
+            `reply`
+        WHERE
+            id > #{lastReadReplyId}
+            AND reply_id = #{userId}
+        ORDER BY id DESC
+    </select>
+</mapper>
