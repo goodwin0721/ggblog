@@ -33,3 +33,4 @@ target/
 *.http
 ggblog.iml
 web
+/src/main/resources/jdbc.properties
